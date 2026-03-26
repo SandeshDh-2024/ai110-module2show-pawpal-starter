@@ -5,7 +5,9 @@
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+=> The initial UML design uses a class diagram with four main classes: Owner, Pet, Task, and Schedule. Owner owns a Pet and both relate to a Schedule, which contains multiple Tasks.
 - What classes did you include, and what responsibilities did you assign to each?
+=> Classes included: Owner (manages owner profile and constraints), Pet (holds pet information and needs), Task (represents individual care activities with attributes like duration and priority), Schedule (builds and manages the daily plan, including optimization and explanations).
 
 Core user actions:
 - Add owner and pet information, including preferences and constraints.
@@ -14,8 +16,7 @@ Core user actions:
 
 **b. Design changes**
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+- Yes, the design changed during implementation to add missing relationships and fix logic bottlenecks. Added a `pet` attribute to `Owner` to explicitly model the ownership relationship from the UML. Added `owner` and `pet` attributes to `Schedule`, set during `build_plan`, for better encapsulation. Updated `add_task` and `remove_task` in `Schedule` to maintain `total_scheduled_minutes` accurately by incrementing/decrementing the duration. These changes improve data integrity and align the code more closely with the UML relationships.
 
 ---
 
