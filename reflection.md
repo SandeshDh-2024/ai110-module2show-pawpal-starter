@@ -7,6 +7,11 @@
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 
+Core user actions:
+- Add owner and pet information, including preferences and constraints.
+- Add or edit pet care tasks (walks, feeding, medications, grooming, enrichment) with duration and priority.
+- Generate and view a daily schedule/plan for today’s care tasks, including explanations for decisions.
+
 **b. Design changes**
 
 - Did your design change during implementation?
