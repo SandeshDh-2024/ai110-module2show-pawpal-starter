@@ -61,3 +61,37 @@ Compares every pair of incomplete, timed tasks. Two tasks conflict when their ti
 - **CROSS-PET CONFLICT** -- different pets overlap, meaning the owner cannot attend to both
 
 The method returns human-readable warning strings instead of raising exceptions, so the program never crashes on a scheduling error.
+
+## Testing PawPal+
+
+### Running the tests
+
+```bash
+python -m pytest
+```
+
+For verbose output showing each test name and result:
+
+```bash
+python -m pytest -v
+```
+
+### What the tests cover
+
+The test suite (`tests/test_pawpal.py`) includes 7 tests across happy paths and edge cases:
+
+| Test | Category | What it verifies |
+|------|----------|-----------------|
+| `test_task_completion` | Happy path | A task can be marked done and `is_complete()` reflects that |
+| `test_pet_task_addition` | Happy path | Tasks are added to a pet and `task_count()` updates correctly |
+| `test_build_plan_sorts_by_priority_and_sums_minutes` | Happy path | `build_plan()` sorts tasks highest-priority-first and sums total minutes |
+| `test_daily_recurring_task_creates_next_occurrence` | Recurrence | Completing a daily task creates a new task shifted +1 day with `recurrence="daily"` preserved |
+| `test_pet_with_zero_tasks` | Edge case | A pet with no tasks returns count 0; building an empty schedule does not crash |
+| `test_same_time_same_pet_conflict` | Conflict | Two identical-window tasks for the same pet produce a `SAME-PET CONFLICT` warning |
+| `test_sort_by_time_returns_chronological_order` | Sorting | Tasks added out of order are returned 07:00 -> 12:00 -> 18:00; tasks with no start time go last |
+
+### Confidence Level
+
+**Confidence: 4 / 5 stars**
+
+The core scheduling behaviors -- priority sorting, chronological sorting, daily recurrence, and conflict detection -- are all tested and passing. One star is held back because the suite does not yet cover weekly recurrence, cross-pet conflicts, or the `filter_tasks()` method. Adding those tests would bring confidence to 5/5.
