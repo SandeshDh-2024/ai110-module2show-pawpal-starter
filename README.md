@@ -41,3 +41,23 @@ pip install -r requirements.txt
 5. Add tests to verify key behaviors.
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
+
+## Smarter Scheduling
+
+The scheduler includes four algorithmic features beyond basic task storage:
+
+### Sort by Time (`Schedule.sort_by_time`)
+Tasks are sorted chronologically by their `earliest_start` using a lambda key: `key=lambda t: t.earliest_start`. Tasks without a start time are pushed to the end via a `datetime.max` fallback. This ensures the daily view reads like an actual agenda regardless of the order tasks were added.
+
+### Filter by Pet and Status (`Schedule.filter_tasks`)
+A single method accepts optional `pet_name` and `completed` arguments. Each filter is applied as a list comprehension only when provided, so callers can filter by pet, by status, or by both in one call.
+
+### Recurring Tasks (`Task.mark_done` + `Schedule.mark_task_complete`)
+Tasks can carry a `recurrence` field ("daily" or "weekly"). When a recurring task is marked complete, `mark_done()` uses `timedelta(days=1)` or `timedelta(weeks=1)` to calculate the next occurrence and returns a new Task with the shifted time window. `Schedule.mark_task_complete()` automatically adds that new task to the schedule so the owner never has to re-enter it.
+
+### Conflict Detection (`Schedule.find_conflicts`)
+Compares every pair of incomplete, timed tasks. Two tasks conflict when their time windows overlap (task A's end is after task B's start). Each conflict is classified as:
+- **SAME-PET CONFLICT** -- one pet is double-booked
+- **CROSS-PET CONFLICT** -- different pets overlap, meaning the owner cannot attend to both
+
+The method returns human-readable warning strings instead of raising exceptions, so the program never crashes on a scheduling error.
