@@ -140,6 +140,9 @@ if st.button("Generate Schedule"):
         for instance in expand_recurring(t, days=1):   # today's instance only
             schedule.add_task(instance)
 
+    # Sort tasks by priority so the most important ones appear first
+    schedule.optimize()
+
     st.session_state.schedules.append(schedule)
     st.success(f"Schedule generated with {len(schedule.tasks)} tasks ({schedule.total_scheduled_minutes} min total).")
 
@@ -173,8 +176,11 @@ if st.session_state.schedules:
 
     filtered = schedule.filter_tasks(pet_name=pet_name_arg, completed=completed_arg)
 
-    # -- Sort filtered results by time using the Schedule lambda key ----------
-    sorted_tasks = sorted(filtered, key=lambda t: t.earliest_start or datetime.max)
+    # -- Sort filtered results chronologically using Schedule.sort_by_time ----
+    time_ordered = schedule.sort_by_time()
+    # Keep only tasks that passed the filter (preserve chronological order)
+    filtered_ids = {id(t) for t in filtered}
+    sorted_tasks = [t for t in time_ordered if id(t) in filtered_ids]
 
     if sorted_tasks:
         st.table([
@@ -218,11 +224,14 @@ if st.session_state.schedules:
     st.subheader("6. Conflict Detection")
     warnings = schedule.find_conflicts()
     if warnings:
+        st.error(f"**{len(warnings)} scheduling conflict(s) found** — please review and reschedule overlapping tasks.")
         for w in warnings:
-            st.warning(w)
-        st.write(f"**{len(warnings)} conflict(s) detected.**")
+            if "SAME-PET CONFLICT" in w:
+                st.warning(f"🐾 {w}\n\n**Tip:** Your pet can't do two things at once. Move one task to a different time slot.")
+            else:
+                st.warning(f"👤 {w}\n\n**Tip:** You're double-booked across pets. Shift one task so you can attend to each pet separately.")
     else:
-        st.success("No scheduling conflicts found.")
+        st.success("No scheduling conflicts — your pets' day looks good!")
 
     # -- Schedule reasoning log -----------------------------------------------
     with st.expander("Schedule log"):

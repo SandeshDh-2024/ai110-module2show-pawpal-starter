@@ -42,6 +42,37 @@ pip install -r requirements.txt
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
 
+## Features
+
+PawPal+ is built around four classes (`Owner`, `Pet`, `Task`, `Schedule`) and exposes the following capabilities through the Streamlit UI:
+
+### Pet and Owner Management
+- Register multiple pets with species, breed, age, and health notes
+- Configure owner availability (daily minutes) and preferences
+- Each pet maintains its own task list independently of the schedule
+
+### Task Scheduling
+- Create tasks with a title, duration, priority (low / medium / high), type, and time window
+- Assign every task to a specific pet
+- **Priority sorting** — `Schedule.optimize()` orders tasks from highest to lowest priority so the most important care happens first
+- **Chronological sorting** — `Schedule.sort_by_time()` arranges tasks by `earliest_start` using a lambda sort key, pushing unscheduled tasks to the end so the daily view reads like a real agenda
+
+### Daily Recurrence
+- Mark any task as `"daily"` or `"weekly"` recurring
+- When a recurring task is completed, `Task.mark_done()` automatically generates the next occurrence by shifting the time window forward with `timedelta(days=1)` or `timedelta(weeks=1)`
+- The new task is added to the schedule instantly — no manual re-entry needed
+
+### Conflict Detection
+- `Schedule.find_conflicts()` compares every pair of incomplete, timed tasks for overlapping windows
+- Conflicts are classified as **SAME-PET** (one pet double-booked) or **CROSS-PET** (owner double-booked across pets)
+- The UI displays each conflict as an `st.warning` with an actionable tip explaining what to fix
+
+### Filtering and Display
+- Filter the schedule by pet name, completion status, or both using `Schedule.filter_tasks()`
+- View tasks in a clean `st.table` sorted chronologically
+- Mark tasks complete directly from the UI with automatic recurrence handling
+- Expand "Schedule log" to see a plain-English explanation of every scheduling decision
+
 ## Smarter Scheduling
 
 The scheduler includes four algorithmic features beyond basic task storage:
@@ -95,3 +126,7 @@ The test suite (`tests/test_pawpal.py`) includes 7 tests across happy paths and 
 **Confidence: 4 / 5 stars**
 
 The core scheduling behaviors -- priority sorting, chronological sorting, daily recurrence, and conflict detection -- are all tested and passing. One star is held back because the suite does not yet cover weekly recurrence, cross-pet conflicts, or the `filter_tasks()` method. Adding those tests would bring confidence to 5/5.
+
+### Demo
+
+<a href="/ai110-module2show-pawpal-starter/image.png" target="_blank"><img src='/ai110-module2show-pawpal-starter/image.png' title='PawPal App' width='' alt='PawPal App' class='center-block' /></a>
